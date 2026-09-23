@@ -18,11 +18,38 @@ university DSA lab. This repository is the restructured version, split
 into a proper C++ project layout so each STL container's role is obvious
 from the directory tree.
 
-## Gameplay & Controls
+## How to Play
 
-Customers appear on the left, the cup being built is in the middle, the
-ingredient carousel is at the bottom, and score / lives / leaderboard
-sit on the right.
+Your job: run a tiny tea bar. Customers drift in with orders, you
+assemble their drink from a carousel of ingredients, and you keep
+everyone happy before their patience runs out. Each served drink
+earns you score; each failed customer costs you a life. You start with
+**3 lives** and the round ends when they're gone.
+
+### The screen
+
+- **Left** — the queue of customers waiting for a drink.
+- **Middle** — the cup you're currently building.
+- **Bottom** — the ingredient carousel.
+- **Right** — your score, remaining lives, and the running leaderboard.
+
+### A first round, step by step
+
+1. A customer walks in from the left. Their order appears above their
+   head — for example, *"Matcha Milk"*.
+2. Cycle through the carousel with `←` / `→` until the ingredient you
+   want is highlighted. Press `Enter` (or `Space`) to push it into the
+   cup. The cup can hold up to **6** layers.
+3. Made a mistake? `Backspace` pops the last ingredient off the cup —
+   it's a LIFO stack, so only the most recent push can be undone.
+4. When the cup matches what the customer asked for, press `S` to
+   serve the customer who's been waiting the longest. You don't pick
+   who — the game picks for you based on urgency (see below).
+5. Each correctly served drink scores points; each missed customer
+   costs a life. When all three lives are gone, the leaderboard for
+   that session is shown — press `R` to start a new round.
+
+### Controls cheat sheet
 
 | Key                  | Action                                 |
 |----------------------|----------------------------------------|
@@ -33,21 +60,28 @@ sit on the right.
 | `R`                  | Restart after Game Over                |
 | `Esc`                | Close the window                       |
 
-A cup can hold up to **6** layers. The order matters in the visual
-rendering but not for matching — the cup is compared as a multiset, so
-shaking a Matcha Milk is fine as long as you used Matcha and Milk.
+### Things that aren't obvious
 
-### Scoring
+**Recipe matching is order-independent.** A cup is compared as a
+*multiset* of ingredients — so a Matcha Milk made with `[Milk, Matcha]`
+matches the same order as `[Matcha, Milk]`. The on-screen rendering
+shows the order, but the judge doesn't care. Use this to your
+advantage: build the cup however's fastest.
+
+**Patience decays every frame.** The customer who has been waiting the
+longest gets served next when you press `S` — you can't choose who to
+serve. VIPs get a base boost on top of their waiting time so they
+climb the queue faster than Regulars, even if they arrived later.
+
+**Scoring rewards speed.** The faster you serve, the more you score,
+because the patience bonus is part of the formula:
 
 | Event                         | Score change            |
 |-------------------------------|-------------------------|
-| Match a Regular order          | `+50 + 2 * patience`    |
-| Match a VIP order              | `+100 + 2 * patience`   |
-| Wrong recipe                   | `-5`                    |
-| Customer walks out (no lives)  | `-10` and `-1` life     |
-
-You start with **3 lives**. Lose them all and you see the leaderboard
-(top 5 of this session). Press `R` to start fresh.
+| Match a Regular order          | `+50 + 2 × patience`    |
+| Match a VIP order              | `+100 + 2 × patience`   |
+| Wrong recipe                   | `−5`                    |
+| Customer walks out (no lives)  | `−10` and `−1` life     |
 
 ## Downloads
 
