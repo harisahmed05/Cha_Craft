@@ -91,6 +91,7 @@ jobs:
         shell: pwsh
         run: |
           choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          choco install -y ninja
           # raylib deps pulled via FetchContent.
 
       - name: Configure (Linux/macOS)
@@ -105,29 +106,37 @@ jobs:
             -DCMAKE_C_COMPILER="$CC" \
             -DCMAKE_CXX_COMPILER="$CXX"
 
+      # Use Ninja on Windows rather than the Visual Studio generator. The
+      # default `windows-latest` runner image ships a newer Visual Studio than
+      # this workflow was originally pinned to, so asking for
+      # "Visual Studio 17 2022" caused "could not find any instance of
+      # Visual Studio" at configure time. Ninja is generator-agnostic and
+      # works with whatever toolchain the image provides.
       - name: Configure (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
-            -DCMAKE_BUILD_TYPE=Release `
-            -DCHACRAFT_FETCH_RAYLIB=ON
+        run: >
+          cmake -S . -B build -G "Ninja"
+          -DCMAKE_BUILD_TYPE=Release
+          -DCHACRAFT_FETCH_RAYLIB=ON
 
       - name: Build (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake --build build -j --config Release
 
+      # Ninja is a single-config generator, so the binary is written to
+      # build/cha_craft.exe directly (no build/Release subdir).
       - name: Build (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: cmake --build build -j --config Release
+        run: cmake --build build -j
 
       - name: Smoke test the binary
         shell: bash
         run: |
           set -e
           if [ "${{ runner.os }}" = "Windows" ]; then
-            BIN="build/Release/cha_craft.exe"
+            BIN="build/cha_craft.exe"
           else
             BIN="build/cha_craft"
           fi
@@ -154,6 +163,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: build/Release/cha_craft.exe
+          path: build/cha_craft.exe
           if-no-files-found: error
           retention-days: 14
