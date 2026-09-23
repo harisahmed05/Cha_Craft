@@ -5,6 +5,24 @@
 
 ![screenshot](screenshot000.png)
 
+## Downloads
+
+Pre-built binaries for the latest release (v1.0.0):
+
+- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-linux-x86_64.zip)
+- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-macos-x86_64.zip)
+- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-windows-x86_64.zip)
+- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/SHA256SUMS.txt)
+
+Verify integrity after downloading:
+
+```bash
+sha256sum -c SHA256SUMS.txt
+```
+
+All releases (including older versions) are listed at
+[github.com/harisahmed05/cha_craft/releases](https://github.com/harisahmed05/cha_craft/releases).
+
 ## Quick Start
 
 ```bash
