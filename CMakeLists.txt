@@ -62,7 +62,11 @@ else()
                 include(FetchContent)
                 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
                 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
-                set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+                # Static-link raylib into the executable so the released
+                # binary has no runtime dependency on a specific
+                # libraylib.so.NNN. Only system libs (libGL, libX11, ...)
+                # remain dynamic, and those are universal on Linux.
+                set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
                 FetchContent_Declare(
                     raylib
                     GIT_REPOSITORY https://github.com/raysan5/raylib.git
