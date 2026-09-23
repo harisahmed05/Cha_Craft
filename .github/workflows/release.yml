@@ -293,7 +293,11 @@ jobs:
           #    accidentally rewrite anything else.
           sed -i -E "s|(releases/download/)[^/]+|\1${TAG}|g" README.md
           # 2) Update the "(vX.Y.Z)" mention in the Downloads header.
-          sed -i -E "s|\(latest release\) \((v[0-9]+\.[0-9]+\.[0-9]+)\)|(latest release) (${TAG})|g" README.md
+          #    The text reads "for the latest release (vX.Y.Z):", so the
+          #    version sits inside parentheses that follow the literal
+          #    phrase "latest release ". Allow pre-release suffixes like
+          #    -rc1 (anything until the closing paren).
+          sed -i -E "s|(latest release \()(v[^)]+)(\))|\1${TAG}\3|g" README.md
           # Show what changed for the log.
           git --no-pager diff -- README.md
 
