@@ -8,7 +8,7 @@
 ## Quick Start
 
 ```bash
-git clone <this-repo-url> cha_craft
+git clone https://github.com/harisahmed05/cha_craft cha_craft
 cd cha_craft
 cmake -S . -B build
 cmake --build build -j
