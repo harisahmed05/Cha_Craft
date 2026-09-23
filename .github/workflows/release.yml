@@ -244,3 +244,64 @@ jobs:
             cha_craft-${{ steps.ver.outputs.version }}-macos-x86_64.zip
             cha_craft-${{ steps.ver.outputs.version }}-windows-x86_64.zip
             SHA256SUMS.txt
+
+  # After the release is published, point README.md's Downloads section at
+  # this tag. Runs after both `build` (so we know the tag exists) and
+  # `release` (so the asset URLs actually resolve). Pushes a single commit
+  # back to main; release.yml does NOT re-trigger because it only listens
+  # for tag pushes. CI.yml will validate the new README via lint-links.
+  bump-readme:
+    name: bump README downloads
+    needs: [build, release]
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Need write access on the working tree to commit back.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve version from tag
+        id: ver
+        run: |
+          echo "tag=${GITHUB_REF_NAME}"          >> "$GITHUB_OUTPUT"   # v1.0.1
+          echo "version=${GITHUB_REF_NAME#v}"    >> "$GITHUB_OUTPUT"   # 1.0.1
+
+      - name: Skip if README already references this tag
+        id: check
+        run: |
+          if grep -q "releases/download/${{ steps.ver.outputs.tag }}/" README.md; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "README already references ${{ steps.ver.outputs.tag }}; skipping bump."
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite README download links
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.ver.outputs.tag }}"
+          # 1) Update all four asset URLs: .../releases/download/<oldtag>/...
+          #    The previous tag appears as the path segment right after
+          #    `releases/download/`. Use a precise regex so we never
+          #    accidentally rewrite anything else.
+          sed -i -E "s|(releases/download/)[^/]+|\1${TAG}|g" README.md
+          # 2) Update the "(vX.Y.Z)" mention in the Downloads header.
+          sed -i -E "s|\(latest release\) \((v[0-9]+\.[0-9]+\.[0-9]+)\)|(latest release) (${TAG})|g" README.md
+          # Show what changed for the log.
+          git --no-pager diff -- README.md
+
+      - name: Commit and push README bump
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: bump README downloads to ${{ steps.ver.outputs.tag }}"
+          git push origin HEAD:main

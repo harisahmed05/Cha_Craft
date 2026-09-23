@@ -5,39 +5,6 @@
 
 ![screenshot](screenshot000.png)
 
-## Downloads
-
-Pre-built binaries for the latest release (v1.0.0):
-
-- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-linux-x86_64.zip)
-- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-macos-x86_64.zip)
-- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-windows-x86_64.zip)
-- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/SHA256SUMS.txt)
-
-Verify integrity after downloading:
-
-```bash
-sha256sum -c SHA256SUMS.txt
-```
-
-All releases (including older versions) are listed at
-[github.com/harisahmed05/cha_craft/releases](https://github.com/harisahmed05/cha_craft/releases).
-
-## Quick Start
-
-```bash
-git clone https://github.com/harisahmed05/cha_craft cha_craft
-cd cha_craft
-cmake -S . -B build
-cmake --build build -j
-./build/cha_craft
-```
-
-Requires a C++17 compiler, CMake 3.16+, and raylib. If you don't have
-raylib installed, pass `-DCHACRAFT_FETCH_RAYLIB=ON` to the configure
-step. See [**Build Instructions**](#build-instructions) for per-OS
-install commands.
-
 ## About
 
 You run a tiny tea bar. Customers drift in with orders, you assemble their
@@ -81,6 +48,107 @@ shaking a Matcha Milk is fine as long as you used Matcha and Milk.
 
 You start with **3 lives**. Lose them all and you see the leaderboard
 (top 5 of this session). Press `R` to start fresh.
+
+## Downloads
+
+Pre-built binaries for the latest release (v1.0.0):
+
+- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-linux-x86_64.zip)
+- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-macos-x86_64.zip)
+- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-windows-x86_64.zip)
+- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/SHA256SUMS.txt)
+
+Verify integrity after downloading:
+
+```bash
+sha256sum -c SHA256SUMS.txt
+```
+
+All releases (including older versions) are listed at
+[github.com/harisahmed05/cha_craft/releases](https://github.com/harisahmed05/cha_craft/releases).
+
+## Install & Build
+
+### Quick Start
+
+If you already have a C++17 compiler, CMake 3.16+, and raylib, this is
+the whole story:
+
+```bash
+git clone https://github.com/harisahmed05/cha_craft cha_craft
+cd cha_craft
+cmake -S . -B build
+cmake --build build -j
+./build/cha_craft
+```
+
+If you don't have raylib installed, pass `-DCHACRAFT_FETCH_RAYLIB=ON` to
+the configure step (see [Building without a system raylib](#building-without-a-system-raylib)
+below).
+
+### Prerequisites
+
+- A C++17-capable compiler (GCC 9+, Clang 10+, MSVC 2019+).
+- [raylib](https://www.raylib.com/) (any 4.x or 5.x).
+- CMake 3.16 or newer.
+
+### Linux
+
+```bash
+# Debian / Ubuntu
+sudo apt install build-essential cmake libraylib-dev
+
+# Fedora
+sudo dnf install gcc-c++ cmake raylib-devel
+
+# Arch
+sudo pacman -S --needed base-devel cmake raylib
+
+# Configure + build
+cmake -S . -B build
+cmake --build build -j
+
+# Run
+./build/cha_craft
+```
+
+### macOS
+
+```bash
+brew install cmake raylib
+
+cmake -S . -B build
+cmake --build build -j
+./build/cha_craft
+```
+
+### Windows (MSVC + vcpkg)
+
+```powershell
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg install raylib:x64-windows
+
+# Back in the project directory
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=<path-to-vcpkg>/scripts/buildsystems/vcpkg.cmake
+cmake --build build --config Release
+.\build\Release\cha_craft.exe
+```
+
+### Building without a system raylib
+
+If you don't have raylib installed and don't want to install it, pass
+`-DCHACRAFT_FETCH_RAYLIB=ON` and CMake will download and build raylib
+from source via `FetchContent`:
+
+```bash
+cmake -S . -B build -DCHACRAFT_FETCH_RAYLIB=ON
+cmake --build build -j
+```
+
+> ⚠️ This downloads raylib from GitHub and compiles it on your machine,
+> which takes a couple of minutes. Use a system package when you can.
 
 ## Project Layout
 
@@ -157,72 +225,6 @@ The player cycles through a fixed, ordered set of ingredients with the
 arrow keys. Contiguous storage plus **O(1)** random-access indexing is
 the natural fit; a linked structure would waste time walking node-to-node
 for something this simple.
-
-## Build Instructions
-
-### Prerequisites
-
-- A C++17-capable compiler (GCC 9+, Clang 10+, MSVC 2019+).
-- [raylib](https://www.raylib.com/) (any 4.x or 5.x).
-- CMake 3.16 or newer.
-
-### Linux
-
-```bash
-# Debian / Ubuntu
-sudo apt install build-essential cmake libraylib-dev
-
-# Fedora
-sudo dnf install gcc-c++ cmake raylib-devel
-
-# Arch
-sudo pacman -S --needed base-devel cmake raylib
-
-# Configure + build
-cmake -S . -B build
-cmake --build build -j
-
-# Run
-./build/cha_craft
-```
-
-### macOS
-
-```bash
-brew install cmake raylib
-
-cmake -S . -B build
-cmake --build build -j
-./build/cha_craft
-```
-
-### Windows (MSVC + vcpkg)
-
-```powershell
-git clone https://github.com/microsoft/vcpkg.git
-cd vcpkg
-.\bootstrap-vcpkg.bat
-.\vcpkg install raylib:x64-windows
-
-# Back in the project directory
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=<path-to-vcpkg>/scripts/buildsystems/vcpkg.cmake
-cmake --build build --config Release
-.\build\Release\cha_craft.exe
-```
-
-### No system raylib? Fetch it automatically
-
-If you don't have raylib installed and don't want to install it, pass
-`-DCHACRAFT_FETCH_RAYLIB=ON` and CMake will download and build raylib
-from source via `FetchContent`:
-
-```bash
-cmake -S . -B build -DCHACRAFT_FETCH_RAYLIB=ON
-cmake --build build -j
-```
-
-> ⚠️ This downloads raylib from GitHub and compiles it on your machine,
-> which takes a couple of minutes. Use a system package when you can.
 
 ## Contributing
 
