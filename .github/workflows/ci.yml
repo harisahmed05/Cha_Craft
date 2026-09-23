@@ -166,3 +166,21 @@ jobs:
           path: build/cha_craft.exe
           if-no-files-found: error
           retention-days: 14
+
+  # Validate every link in README.md. README is the only .md file in the
+  # repo, so no scoping is needed. Config: .github/markdown-link-check.json.
+  lint-links:
+    name: lint markdown links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: .github/markdown-link-check.json
+          # Check only README.md (the only .md in the repo) and skip
+          # CHANGELOG-style files we don't have today but might add later.
+          folder-path: .
+          file-path: README.md
