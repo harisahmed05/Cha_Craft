@@ -1,0 +1,159 @@
+# SPDX-License-Identifier: MIT
+#
+# Cha Craft - CI
+#
+# Builds the project on Linux, macOS, and Windows using CMake.
+# raylib is pulled in via FetchContent (CHACRAFT_FETCH_RAYLIB=ON) so the
+# build is reproducible and does not depend on system packages.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same branch / PR when a new commit lands.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux / gcc
+            cc: gcc
+            cxx: g++
+            artifact: cha_craft-linux-gcc
+          - os: ubuntu-latest
+            label: linux / clang
+            cc: clang
+            cxx: clang++
+            artifact: cha_craft-linux-clang
+          - os: macos-latest
+            label: macos / clang
+            cc: clang
+            cxx: clang++
+            artifact: cha_craft-macos
+          - os: windows-latest
+            label: windows / msvc
+            artifact: cha_craft-windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Windows: activate the MSVC dev shell so MSBuild + cl.exe + Windows SDK
+      # are on PATH for the rest of the job. cmake on Windows reads the
+      # build environment from the active dev shell.
+      - name: Set up MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install Linux build deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            cmake \
+            git \
+            libasound2-dev \
+            libgl1-mesa-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libglfw3-dev \
+            pkg-config
+          # raylib is built from source via FetchContent, but its link step
+          # still needs the X11/GL/ALSA dev headers/libs above.
+
+      - name: Install macOS build deps
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install cmake
+          # raylib deps pulled via FetchContent; only need a recent CMake.
+
+      - name: Install Windows build deps
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          # raylib deps pulled via FetchContent.
+
+      - name: Configure (Linux/macOS)
+        if: runner.os != 'Windows'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -S . -B build -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCHACRAFT_FETCH_RAYLIB=ON \
+            -DCMAKE_C_COMPILER="$CC" \
+            -DCMAKE_CXX_COMPILER="$CXX"
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCHACRAFT_FETCH_RAYLIB=ON
+
+      - name: Build (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: cmake --build build -j --config Release
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: cmake --build build -j --config Release
+
+      - name: Smoke test the binary
+        shell: bash
+        run: |
+          set -e
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            BIN="build/Release/cha_craft.exe"
+          else
+            BIN="build/cha_craft"
+          fi
+          if [ ! -f "$BIN" ]; then
+            echo "::error::Expected binary not found at $BIN"
+            ls -R build
+            exit 1
+          fi
+          echo "Built $BIN"
+          file "$BIN" || true
+          ls -lh "$BIN"
+
+      - name: Upload artifact (Linux/macOS)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: build/cha_craft
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: build/Release/cha_craft.exe
+          if-no-files-found: error
+          retention-days: 14
