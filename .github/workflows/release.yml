@@ -191,29 +191,40 @@ jobs:
           echo "tag=${GITHUB_REF_NAME}"          >> "$GITHUB_OUTPUT"   # v1.0.0
           echo "version=${GITHUB_REF_NAME#v}"    >> "$GITHUB_OUTPUT"   # 1.0.0
 
-      - name: Download all per-OS assets
+      - name: Download per-OS staged assets
         uses: actions/download-artifact@v4
         with:
+          pattern: release-assets-*
           path: assets
+          # Default (false): each artifact is extracted into a subdirectory
+          # named after the artifact. actions/upload-artifact@v4 with
+          # `path: staging/` zips the *contents* of staging/ (the dir
+          # prefix is stripped), so the extracted layout is:
+          #   assets/release-assets-<os>/cha_craft[.exe]
+          #   assets/release-assets-<os>/README.txt
+          # which is exactly the layout the repackage step below expects.
+          merge-multiple: false
 
       - name: Repackage per-OS assets into zip archives
-        working-directory: assets
         run: |
           set -e
           VERSION="${{ steps.ver.outputs.version }}"
           for os in linux macos windows; do
-            if [ -d "$os" ]; then
-              rm -f "../cha_craft-${VERSION}-${os}-x86_64.zip"
-              zip -r "../cha_craft-${VERSION}-${os}-x86_64.zip" "$os" > /dev/null
-            else
-              echo "::error::Missing staged assets directory: $os"
+            src="assets/release-assets-${os}"
+            if [ ! -d "$src" ]; then
+              echo "::error::Missing artifact directory $src"
+              ls -la assets/ || true
               exit 1
             fi
+            mkdir -p "assets/${os}"
+            # Copy binary + README into a clean <os>/ directory.
+            cp -r "$src/." "assets/${os}/"
+            rm -f "cha_craft-${VERSION}-${os}-x86_64.zip"
+            ( cd assets && zip -r "../cha_craft-${VERSION}-${os}-x86_64.zip" "${os}" > /dev/null )
           done
-          ls -la ../cha_craft-*.zip
+          ls -la cha_craft-*.zip
 
       - name: Generate SHA256SUMS
-        working-directory: ${{ github.workspace }}
         run: |
           set -e
           sha256sum cha_craft-*.zip > SHA256SUMS.txt
