@@ -131,6 +131,23 @@ jobs:
         shell: pwsh
         run: cmake --build build -j
 
+      # Catch dynamic linking against raylib before we ship. We want
+      # released binaries to be self-contained (no libraylib.so.NNN
+      # runtime dependency) so users don't get "error while loading
+      # shared libraries" on distros with a different raylib version.
+      - name: Assert no libraylib runtime dependency
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -e
+          if ldd build/cha_craft | grep -q 'libraylib'; then
+            echo "::error::Binary has a libraylib.so.* runtime dependency."
+            echo "::error::Switch BUILD_SHARED_LIBS OFF in CMakeLists.txt."
+            ldd build/cha_craft | grep raylib || true
+            exit 1
+          fi
+          echo "OK: no libraylib dependency"
+
       - name: Stage release files
         shell: bash
         run: |
