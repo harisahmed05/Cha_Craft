@@ -51,12 +51,12 @@ You start with **3 lives**. Lose them all and you see the leaderboard
 
 ## Downloads
 
-Pre-built binaries for the latest release (v0.0.2-test):
+Pre-built binaries for the latest release (v1.0.0):
 
-- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v0.0.2-test/cha_craft-1.0.0-linux-x86_64.zip)
-- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v0.0.2-test/cha_craft-1.0.0-macos-x86_64.zip)
-- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v0.0.2-test/cha_craft-1.0.0-windows-x86_64.zip)
-- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v0.0.2-test/SHA256SUMS.txt)
+- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-linux-x86_64.zip)
+- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-macos-x86_64.zip)
+- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-windows-x86_64.zip)
+- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/SHA256SUMS.txt)
 
 Verify integrity after downloading:
 
