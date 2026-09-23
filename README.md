@@ -18,6 +18,24 @@ university DSA lab. This repository is the restructured version, split
 into a proper C++ project layout so each STL container's role is obvious
 from the directory tree.
 
+## Downloads
+
+Pre-built binaries for the latest release (v1.0.0):
+
+- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-linux-x86_64.zip)
+- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-macos-x86_64.zip)
+- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-windows-x86_64.zip)
+- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/SHA256SUMS.txt)
+
+Verify integrity after downloading:
+
+```bash
+sha256sum -c SHA256SUMS.txt
+```
+
+All releases (including older versions) are listed at
+[github.com/harisahmed05/cha_craft/releases](https://github.com/harisahmed05/cha_craft/releases).
+
 ## How to Play
 
 Your job: run a tiny tea bar. Customers drift in with orders, you
@@ -82,24 +100,6 @@ because the patience bonus is part of the formula:
 | Match a VIP order              | `+100 + 2 × patience`   |
 | Wrong recipe                   | `−5`                    |
 | Customer walks out (no lives)  | `−10` and `−1` life     |
-
-## Downloads
-
-Pre-built binaries for the latest release (v1.0.0):
-
-- [cha_craft-1.0.0-linux-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-linux-x86_64.zip)
-- [cha_craft-1.0.0-macos-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-macos-x86_64.zip)
-- [cha_craft-1.0.0-windows-x86_64.zip](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/cha_craft-1.0.0-windows-x86_64.zip)
-- [SHA256SUMS.txt](https://github.com/harisahmed05/cha_craft/releases/download/v1.0.0/SHA256SUMS.txt)
-
-Verify integrity after downloading:
-
-```bash
-sha256sum -c SHA256SUMS.txt
-```
-
-All releases (including older versions) are listed at
-[github.com/harisahmed05/cha_craft/releases](https://github.com/harisahmed05/cha_craft/releases).
 
 ## Install & Build
 
